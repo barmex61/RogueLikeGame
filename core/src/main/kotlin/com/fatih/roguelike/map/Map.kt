@@ -12,15 +12,14 @@ import com.fatih.roguelike.util.Constants.UNIT_SCALE
 class Map (private val tiledMap: TiledMap,val collisionArea:ArrayList<CollisionArea>) {
 
     private lateinit var gameObjects:MapObjects
+    val startLocation=Vector2()
 
     init {
         parseCollisionLayer()
         parsePlayerStartLocation()
     }
 
-    companion object{
-        val startLocation=Vector2()
-    }
+
 
     private fun parsePlayerStartLocation(){
         val gameObject = tiledMap.layers.get("gameObjects")

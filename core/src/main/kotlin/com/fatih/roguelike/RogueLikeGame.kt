@@ -27,6 +27,7 @@ import com.badlogic.gdx.utils.I18NBundle
 import com.badlogic.gdx.utils.ObjectMap
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.fatih.roguelike.audio.AudioManager
+import com.fatih.roguelike.ecs.ECSEngine
 import com.fatih.roguelike.input.InputManager
 import com.fatih.roguelike.util.WorldContactListener
 import com.fatih.roguelike.screen.GameScreen
@@ -56,6 +57,7 @@ class RogueLikeGame : Game(),ContactListener by WorldContactListener() {
         lateinit var stage:Stage
         lateinit var i18NBundle:I18NBundle
         val audioManager=AudioManager()
+        val ecsEngine=ECSEngine()
     }
 
     override fun create() {
@@ -129,6 +131,7 @@ class RogueLikeGame : Game(),ContactListener by WorldContactListener() {
 
     override fun render() {
         super.render()
+        ecsEngine.update(Gdx.graphics.deltaTime)
         accumulator += 0.25f.coerceAtMost(Gdx.graphics.deltaTime)
         while (accumulator >= FIXED_TIME_STEP){
             world.step(FIXED_TIME_STEP,6,2)

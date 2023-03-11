@@ -17,6 +17,10 @@ abstract class AbstractScreen <T:Table>:Screen ,InputListener{
     private val inputManager=RogueLikeGame.inputManager
     protected val audioManager=RogueLikeGame.audioManager
 
+    companion object{
+        var sendMessage:((Boolean)->Unit)?=null
+    }
+
     override fun resize(width: Int, height: Int) {
         viewPort.update(width,height)
         stage.viewport.update(width,height,true)
@@ -27,6 +31,9 @@ abstract class AbstractScreen <T:Table>:Screen ,InputListener{
     override fun show() {
         stage.addActor(screenUI)
         inputManager.inputListener=this
+        if (this is GameScreen){
+            sendMessage?.invoke(true)
+        }
     }
 
     override fun hide() {

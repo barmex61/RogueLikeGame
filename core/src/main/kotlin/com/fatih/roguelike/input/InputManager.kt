@@ -1,8 +1,6 @@
 package com.fatih.roguelike.input
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputProcessor
-import com.fatih.roguelike.util.Constants
 
 class InputManager : InputProcessor {
 

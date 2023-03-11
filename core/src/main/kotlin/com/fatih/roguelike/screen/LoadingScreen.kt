@@ -10,11 +10,12 @@ import com.badlogic.gdx.utils.I18NBundle
 import com.fatih.roguelike.RogueLikeGame
 import com.fatih.roguelike.audio.AudioType
 import com.fatih.roguelike.input.GameKeys
+import com.fatih.roguelike.input.InputListener
 import com.fatih.roguelike.input.InputManager
 import com.fatih.roguelike.ui.LoadingUI
 import com.fatih.roguelike.util.Constants.setScreen
 
-class LoadingScreen : AbstractScreen<LoadingUI>() {
+class LoadingScreen : AbstractScreen<LoadingUI>() ,InputListener{
 
     private var isMusicLoaded=false
 
@@ -23,6 +24,7 @@ class LoadingScreen : AbstractScreen<LoadingUI>() {
         for (audioType in AudioType.values()){
             RogueLikeGame.assetManager.load(audioType.path,if (audioType.isMusic) Music::class.java else Sound::class.java)
         }
+
     }
 
     override fun hide() {
@@ -67,7 +69,7 @@ class LoadingScreen : AbstractScreen<LoadingUI>() {
     }
 
     override fun keyRelease(inputManager: InputManager, key: GameKeys) {
-        //TODO("Not yet implemented")
+
     }
 
 
