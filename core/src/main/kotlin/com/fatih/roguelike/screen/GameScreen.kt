@@ -11,18 +11,20 @@ import com.badlogic.gdx.physics.box2d.ChainShape
 import com.badlogic.gdx.physics.box2d.FixtureDef
 import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.I18NBundle
 import com.fatih.roguelike.RogueLikeGame
 import com.fatih.roguelike.RogueLikeGame.Companion.assetManager
 import com.fatih.roguelike.RogueLikeGame.Companion.skin
 import com.fatih.roguelike.RogueLikeGame.Companion.spriteBatch
 import com.fatih.roguelike.RogueLikeGame.Companion.world
+import com.fatih.roguelike.input.GameKeys
+import com.fatih.roguelike.input.InputManager
 import com.fatih.roguelike.util.Constants.BIT_GROUND
 import com.fatih.roguelike.util.Constants.BIT_PLAYER
 import com.fatih.roguelike.util.Constants.UNIT_SCALE
 import com.fatih.roguelike.map.Map
 import com.fatih.roguelike.ui.GameUI
+import com.fatih.roguelike.util.Constants.TAG
 
 class GameScreen: AbstractScreen<GameUI>() {
 
@@ -30,6 +32,9 @@ class GameScreen: AbstractScreen<GameUI>() {
     private var bodyDef=BodyDef()
     private lateinit var player:Body
     private var map:Map
+    private var directionChange=false
+    private var xFactor=0f
+    private var yFactor=0f
     private var orthogonalTiledMapRenderer= OrthogonalTiledMapRenderer(null, UNIT_SCALE,spriteBatch)
     private var speedX=0f
     private var speedY=0f
@@ -120,13 +125,15 @@ class GameScreen: AbstractScreen<GameUI>() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         speedX = if (Gdx.input.isKeyPressed(Input.Keys.A)){ -100f }else if (Gdx.input.isKeyPressed(Input.Keys.D)){ 100f }else{ 0f }
         speedY = if (Gdx.input.isKeyPressed(Input.Keys.S)){ -100f }else if (Gdx.input.isKeyPressed(Input.Keys.W)){ 100f }else{ 0f }
-        player.applyLinearImpulse(
-            (speedX-player.linearVelocity.x) * player.mass,
-            (speedY - player.linearVelocity.y) * player.mass,
-            player.worldCenter.x,
-            player.worldCenter.y,
-            true
-        )
+        if (directionChange){
+            player.applyLinearImpulse(
+                (xFactor*60 - player.linearVelocity.x) * player.mass,
+                (yFactor*60 - player.linearVelocity.y) * player.mass,
+                player.worldCenter.x,
+                player.worldCenter.y,
+                true
+            )
+        }
         viewPort.apply(true)
         orthogonalTiledMapRenderer.setView(RogueLikeGame.gameCamera)
         orthogonalTiledMapRenderer.render()
@@ -141,6 +148,51 @@ class GameScreen: AbstractScreen<GameUI>() {
 
     override fun dispose() {
         orthogonalTiledMapRenderer.dispose()
+    }
+
+    override fun keyPressed(inputManager: InputManager, key: GameKeys) {
+        when(key){
+            GameKeys.LEFT->{
+                directionChange=true
+                xFactor=-1f
+            }
+            GameKeys.RIGHT->{
+                directionChange=true
+                xFactor=1f
+            }
+            GameKeys.DOWN->{
+                directionChange=true
+                yFactor=-1f
+            }
+            GameKeys.UP->{
+                directionChange=true
+                yFactor=1f
+            }
+            else->{}
+        }
+    }
+
+    override fun keyRelease(inputManager: InputManager, key: GameKeys) {
+        when(key){
+            GameKeys.LEFT->{
+                directionChange=true
+                xFactor=if (inputManager.isKeyPressed(GameKeys.RIGHT)) 1f else 0f
+                Gdx.app.debug(TAG,xFactor.toString())
+            }
+            GameKeys.RIGHT->{
+                directionChange=true
+                xFactor=if (inputManager.isKeyPressed(GameKeys.LEFT)) -1f else 0f
+            }
+            GameKeys.DOWN->{
+                directionChange=true
+                yFactor=if (inputManager.isKeyPressed(GameKeys.UP)) 1f else 0f
+            }
+            GameKeys.UP->{
+                directionChange=true
+                yFactor=if (inputManager.isKeyPressed(GameKeys.DOWN)) -1f else 0f
+            }
+            else->{}
+        }
     }
 
 

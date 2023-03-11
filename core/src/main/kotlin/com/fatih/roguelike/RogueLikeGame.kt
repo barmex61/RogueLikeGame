@@ -3,6 +3,7 @@ package com.fatih.roguelike
 import com.badlogic.gdx.Application
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.SkinLoader
@@ -25,6 +26,8 @@ import com.badlogic.gdx.utils.GdxRuntimeException
 import com.badlogic.gdx.utils.I18NBundle
 import com.badlogic.gdx.utils.ObjectMap
 import com.badlogic.gdx.utils.viewport.FitViewport
+import com.fatih.roguelike.audio.AudioManager
+import com.fatih.roguelike.input.InputManager
 import com.fatih.roguelike.util.WorldContactListener
 import com.fatih.roguelike.screen.GameScreen
 import com.fatih.roguelike.screen.LoadingScreen
@@ -38,7 +41,9 @@ class RogueLikeGame : Game(),ContactListener by WorldContactListener() {
     private lateinit var screenCache: EnumMap<ScreenType, Screen>
     private var accumulator:Float=0f
 
+
     companion object{
+        val inputManager=InputManager()
         lateinit var spriteBatch: SpriteBatch
         lateinit var screenViewPort: FitViewport
         val world= World(Vector2(0f,0f),true)
@@ -49,7 +54,8 @@ class RogueLikeGame : Game(),ContactListener by WorldContactListener() {
         lateinit var gameCamera: OrthographicCamera
         lateinit var skin:Skin
         lateinit var stage:Stage
-        lateinit var I18NBundle:I18NBundle
+        lateinit var i18NBundle:I18NBundle
+        val audioManager=AudioManager()
     }
 
     override fun create() {
@@ -63,9 +69,10 @@ class RogueLikeGame : Game(),ContactListener by WorldContactListener() {
         Gdx.app.logLevel= Application.LOG_DEBUG
         debugRenderer= Box2DDebugRenderer()
         screenViewPort= FitViewport(
-            Gdx.graphics.width.toFloat(),
-            Gdx.graphics.height.toFloat(), gameCamera)
+            Gdx.graphics.width.toFloat()/3.1f,
+            Gdx.graphics.height.toFloat()/1.30f, gameCamera)
         stage= Stage(FitViewport(Gdx.graphics.width.toFloat(),Gdx.graphics.height.toFloat()), spriteBatch)
+        Gdx.input.inputProcessor=InputMultiplexer(inputManager, stage)
         sizeLambda?.invoke(Gdx.graphics.width, Gdx.graphics.height)
         world.setContactListener(this)
         screenCache= EnumMap(ScreenType::class.java)
@@ -83,6 +90,7 @@ class RogueLikeGame : Game(),ContactListener by WorldContactListener() {
         FreeTypeFontGenerator.FreeTypeFontParameter().apply {
             minFilter=Texture.TextureFilter.Linear
             magFilter=Texture.TextureFilter.Linear
+            characters=FreeTypeFontGenerator.DEFAULT_CHARS + "ğüşıöçĞÜŞİÖÇ"
             val array= arrayOf(16,20,26,32)
             for (number in array){
                 size=number
@@ -95,7 +103,7 @@ class RogueLikeGame : Game(),ContactListener by WorldContactListener() {
         assetManager.load("hud/strings",I18NBundle::class.java)
         assetManager.finishLoading()
         skin = assetManager.get("hud/hud.json",Skin::class.java)
-        I18NBundle= assetManager.get("hud/strings",I18NBundle::class.java)
+        i18NBundle= assetManager.get("hud/strings",I18NBundle::class.java)
 
     }
 

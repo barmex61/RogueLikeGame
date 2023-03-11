@@ -7,26 +7,30 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.I18NBundle
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.fatih.roguelike.RogueLikeGame
+import com.fatih.roguelike.input.InputListener
 
-abstract class AbstractScreen <T:Table>:Screen {
+abstract class AbstractScreen <T:Table>:Screen ,InputListener{
 
     protected val viewPort:FitViewport=RogueLikeGame.screenViewPort
     abstract val screenUI:T
     protected val stage:Stage=RogueLikeGame.stage
-
+    private val inputManager=RogueLikeGame.inputManager
+    protected val audioManager=RogueLikeGame.audioManager
 
     override fun resize(width: Int, height: Int) {
         viewPort.update(width,height)
         stage.viewport.update(width,height,true)
     }
 
-    protected abstract fun getScreenUI(skin: Skin , i18NBundle: I18NBundle = RogueLikeGame.I18NBundle):T
+    protected abstract fun getScreenUI(skin: Skin , i18NBundle: I18NBundle = RogueLikeGame.i18NBundle):T
 
     override fun show() {
         stage.addActor(screenUI)
+        inputManager.inputListener=this
     }
 
     override fun hide() {
         stage.root.removeActor(screenUI)
+        inputManager.inputListener=null
     }
 }
