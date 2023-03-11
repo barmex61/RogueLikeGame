@@ -24,31 +24,25 @@ class Map (private val tiledMap: TiledMap,val collisionArea:ArrayList<CollisionA
 
     private fun parsePlayerStartLocation(){
         val gameObject = tiledMap.layers.get("gameObjects")
-        gameObject?.let {
-            gameObjects=it.objects
-            for (obj in gameObjects){
+        gameObjects=gameObject.objects
+        for (obj in gameObjects){
                 when(obj){
                     is RectangleMapObject->{
                         val rectangle=obj.rectangle
                         startLocation.set(rectangle.x * UNIT_SCALE ,rectangle.y * UNIT_SCALE)
+                        Gdx.app.debug(TAG, "${startLocation.x} ${startLocation.y}")
                     }
+                    else->{
+                        Gdx.app.debug(TAG,"There is no such an object")
                 }
             }
-        }?:Gdx.app.debug(TAG,"There is no such an object").also {
-            return
         }
     }
 
     private fun parseCollisionLayer(){
         val collisionLayer= tiledMap.layers.get("collision")
-        collisionLayer?.let {
-
-        }?:Gdx.app.debug(TAG,"There is no collision layer").also {
-            return
-        }
         val mapObject=collisionLayer.objects
-        mapObject?.let {
-            for (obj in it){
+        for (obj in mapObject){
                 when(obj){
                     is RectangleMapObject->{
                         val rectangle=obj.rectangle
@@ -65,8 +59,5 @@ class Map (private val tiledMap: TiledMap,val collisionArea:ArrayList<CollisionA
                 }
             }
 
-        }?:Gdx.app.debug(TAG,"There is no collision mapObject defined").also {
-           return
         }
-    }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-up" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="15">
+<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-up" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="21">
  <tileset firstgid="1" source="tileset.tsx"/>
  <layer id="1" name="ground" width="64" height="64">
   <data encoding="base64" compression="zlib">
@@ -17,6 +17,9 @@
   <object id="3" gid="3" x="64" y="1568" width="32" height="32"/>
   <object id="8" gid="16" x="73" y="1708.33" width="32" height="32"/>
   <object id="10" gid="16" x="201.167" y="1707.67" width="32" height="32"/>
+  <object id="15" x="152" y="1765">
+   <point/>
+  </object>
  </objectgroup>
  <objectgroup color="#ff0000" id="5" name="collision">
   <object id="12" x="288" y="1504">

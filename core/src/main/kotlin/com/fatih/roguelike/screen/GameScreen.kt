@@ -10,16 +10,21 @@ import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.ChainShape
 import com.badlogic.gdx.physics.box2d.FixtureDef
 import com.badlogic.gdx.physics.box2d.PolygonShape
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.utils.I18NBundle
 import com.fatih.roguelike.RogueLikeGame
 import com.fatih.roguelike.RogueLikeGame.Companion.assetManager
+import com.fatih.roguelike.RogueLikeGame.Companion.skin
 import com.fatih.roguelike.RogueLikeGame.Companion.spriteBatch
 import com.fatih.roguelike.RogueLikeGame.Companion.world
 import com.fatih.roguelike.util.Constants.BIT_GROUND
 import com.fatih.roguelike.util.Constants.BIT_PLAYER
 import com.fatih.roguelike.util.Constants.UNIT_SCALE
 import com.fatih.roguelike.map.Map
+import com.fatih.roguelike.ui.GameUI
 
-class GameScreen: AbstractScreen() {
+class GameScreen: AbstractScreen<GameUI>() {
 
     private var fixtureDef=FixtureDef()
     private var bodyDef=BodyDef()
@@ -28,20 +33,15 @@ class GameScreen: AbstractScreen() {
     private var orthogonalTiledMapRenderer= OrthogonalTiledMapRenderer(null, UNIT_SCALE,spriteBatch)
     private var speedX=0f
     private var speedY=0f
+    private var tileMap:TiledMap = assetManager.get("map/map.tmx",TiledMap::class.java)
 
-    companion object{
-        lateinit var tileMap: TiledMap
-    }
 
     init {
-        tileMap = assetManager.get("map/map.tmx",TiledMap::class.java)
+        orthogonalTiledMapRenderer.map= tileMap
         map=Map(tileMap, arrayListOf())
         spawnCollisionAreas()
         spawnPlayer()
     }
-
-
-
 
     private fun resetBodyAndFixtureDefinition(){
         bodyDef.apply {
@@ -64,7 +64,6 @@ class GameScreen: AbstractScreen() {
     private fun spawnPlayer(){
 
         resetBodyAndFixtureDefinition()
-
         val myShape= PolygonShape().apply { setAsBox(10f,10f) }
 
         fixtureDef=FixtureDef().apply {
@@ -76,7 +75,7 @@ class GameScreen: AbstractScreen() {
             shape=myShape
         }
         bodyDef=BodyDef().apply {
-            position.set(Map.startLocation)
+            position.set(Map.startLocation.x ,Map.startLocation.y + 10f)
             type=BodyDef.BodyType.DynamicBody
             fixedRotation=true
         }.also {
@@ -110,8 +109,10 @@ class GameScreen: AbstractScreen() {
         }
     }
 
-    override fun show() {
-        orthogonalTiledMapRenderer.map= tileMap
+    override val screenUI: GameUI = getScreenUI(skin)
+
+    override fun getScreenUI(skin: Skin, i18NBundle: I18NBundle): GameUI {
+        return GameUI(skin,i18NBundle)
     }
 
     override fun render(delta: Float) {
@@ -129,7 +130,7 @@ class GameScreen: AbstractScreen() {
         viewPort.apply(true)
         orthogonalTiledMapRenderer.setView(RogueLikeGame.gameCamera)
         orthogonalTiledMapRenderer.render()
-        RogueLikeGame.debugRenderer.render(RogueLikeGame.world,viewPort.camera.combined)
+        RogueLikeGame.debugRenderer.render(world,viewPort.camera.combined)
 
     }
 
@@ -137,8 +138,6 @@ class GameScreen: AbstractScreen() {
     override fun pause() {}
 
     override fun resume() {}
-
-    override fun hide() {}
 
     override fun dispose() {
         orthogonalTiledMapRenderer.dispose()

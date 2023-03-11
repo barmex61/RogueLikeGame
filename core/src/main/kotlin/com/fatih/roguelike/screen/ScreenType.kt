@@ -1,7 +1,7 @@
 package com.fatih.roguelike.screen
 
 
-enum class ScreenType {
+enum class ScreenType  () {
     LOADING,
     GAME
 }
