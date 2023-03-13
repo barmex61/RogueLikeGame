@@ -16,10 +16,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.Box2D
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
-import com.badlogic.gdx.physics.box2d.ContactListener
-import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.GdxRuntimeException
@@ -29,19 +26,22 @@ import com.badlogic.gdx.utils.viewport.FitViewport
 import com.fatih.roguelike.audio.AudioManager
 import com.fatih.roguelike.ecs.ECSEngine
 import com.fatih.roguelike.input.InputManager
+import com.fatih.roguelike.map.MapManager
 import com.fatih.roguelike.util.WorldContactListener
 import com.fatih.roguelike.screen.GameScreen
 import com.fatih.roguelike.screen.LoadingScreen
-import com.fatih.roguelike.screen.ScreenType
+import com.fatih.roguelike.types.ScreenType
+import com.fatih.roguelike.ui.GameRenderer
 import com.fatih.roguelike.util.Constants
 import com.fatih.roguelike.util.Constants.FIXED_TIME_STEP
 import com.fatih.roguelike.util.Constants.setScreen
 import java.util.*
+import kotlin.math.min
 
-class RogueLikeGame : Game(),ContactListener by WorldContactListener() {
+class RogueLikeGame : Game(),ContactListener by WorldContactListener(){
     private lateinit var screenCache: EnumMap<ScreenType, Screen>
     private var accumulator:Float=0f
-
+    private var deltaTime=0f
 
     companion object{
         val inputManager=InputManager()
@@ -58,9 +58,33 @@ class RogueLikeGame : Game(),ContactListener by WorldContactListener() {
         lateinit var i18NBundle:I18NBundle
         val audioManager=AudioManager()
         val ecsEngine=ECSEngine()
+        val fixtureDef= FixtureDef()
+        val bodyDef= BodyDef()
+        val mapManager=MapManager()
+        lateinit var gameRenderer:GameRenderer
+        fun resetBodyAndFixtureDefinition(){
+            bodyDef.apply {
+                position.set(0f,0f)
+                gravityScale=1f
+                type= BodyDef.BodyType.StaticBody
+                fixedRotation=false
+            }
+            fixtureDef.apply {
+                density=0f
+                isSensor=false
+                restitution=0f
+                friction=0.2f
+                filter.categoryBits=0x0001
+                filter.maskBits=-1
+                fixtureDef.shape=null
+            }
+        }
     }
 
     override fun create() {
+        setScreen= {
+            setScreen(it)
+        }
         Box2D.init()
         initializeSkin()
         spriteBatch= SpriteBatch()
@@ -71,17 +95,16 @@ class RogueLikeGame : Game(),ContactListener by WorldContactListener() {
         Gdx.app.logLevel= Application.LOG_DEBUG
         debugRenderer= Box2DDebugRenderer()
         screenViewPort= FitViewport(
-            Gdx.graphics.width.toFloat()/3.1f,
-            Gdx.graphics.height.toFloat()/1.30f, gameCamera)
+            Gdx.graphics.width.toFloat(),
+            Gdx.graphics.height.toFloat(), gameCamera)
         stage= Stage(FitViewport(Gdx.graphics.width.toFloat(),Gdx.graphics.height.toFloat()), spriteBatch)
         Gdx.input.inputProcessor=InputMultiplexer(inputManager, stage)
-        sizeLambda?.invoke(Gdx.graphics.width, Gdx.graphics.height)
+        sizeLambda?.invoke(Gdx.graphics.width/3, (Gdx.graphics.height/1.3).toInt())
         world.setContactListener(this)
         screenCache= EnumMap(ScreenType::class.java)
         setScreen(ScreenType.LOADING)
-        setScreen= {
-            setScreen(it)
-        }
+
+        gameRenderer=GameRenderer()
     }
 
     private fun initializeSkin(){
@@ -131,15 +154,17 @@ class RogueLikeGame : Game(),ContactListener by WorldContactListener() {
 
     override fun render() {
         super.render()
-        ecsEngine.update(Gdx.graphics.deltaTime)
-        accumulator += 0.25f.coerceAtMost(Gdx.graphics.deltaTime)
+        deltaTime= min(0.25f,Gdx.graphics.deltaTime)
+        ecsEngine.update(deltaTime)
+        accumulator +=deltaTime
         while (accumulator >= FIXED_TIME_STEP){
             world.step(FIXED_TIME_STEP,6,2)
             accumulator -= FIXED_TIME_STEP
         }
+        gameRenderer.render(accumulator/ FIXED_TIME_STEP)
         stage.apply {
             viewport.apply()
-            act()
+            act(deltaTime)
             draw()
         }
 
@@ -153,4 +178,5 @@ class RogueLikeGame : Game(),ContactListener by WorldContactListener() {
         assetManager.dispose()
         stage.dispose()
     }
+
 }

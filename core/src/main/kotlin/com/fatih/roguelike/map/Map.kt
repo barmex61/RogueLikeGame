@@ -1,29 +1,43 @@
 package com.fatih.roguelike.map
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.g2d.Animation
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.maps.MapObjects
+import com.badlogic.gdx.maps.MapProperties
 import com.badlogic.gdx.maps.objects.PolylineMapObject
 import com.badlogic.gdx.maps.objects.RectangleMapObject
 import com.badlogic.gdx.maps.tiled.TiledMap
+import com.badlogic.gdx.maps.tiled.TiledMapTile
+import com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject
+import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile
+import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.IntMap
+import com.fatih.roguelike.types.GameObjectType
+import com.fatih.roguelike.util.Constants
 import com.fatih.roguelike.util.Constants.TAG
 import com.fatih.roguelike.util.Constants.UNIT_SCALE
+import javax.print.attribute.IntegerSyntax
 
-class Map (private val tiledMap: TiledMap,val collisionArea:ArrayList<CollisionArea>) {
+class Map ( val tiledMap: TiledMap) {
 
-    private lateinit var gameObjects:MapObjects
+    val gameObjects = ArrayList<GameObject>()
     val startLocation=Vector2()
+    val collisionArea:ArrayList<CollisionArea> = ArrayList()
+    val mapAnimations = IntMap<Animation<Sprite>?>()
 
     init {
         parseCollisionLayer()
         parsePlayerStartLocation()
+        parseGameObjects()
     }
 
 
 
     private fun parsePlayerStartLocation(){
         val gameObject = tiledMap.layers.get("gameObjects")
-        gameObjects=gameObject.objects
+        val gameObjects=gameObject.objects
         for (obj in gameObjects){
                 when(obj){
                     is RectangleMapObject->{
@@ -36,6 +50,71 @@ class Map (private val tiledMap: TiledMap,val collisionArea:ArrayList<CollisionA
                 }
             }
         }
+    }
+
+    private fun parseGameObjects(){
+        val gameObjectsLayer=tiledMap.layers.get("gameObjects")
+        gameObjectsLayer?.let {
+            val objects=gameObjectsLayer.objects
+            for (obj in objects){
+                if (obj !is TiledMapTileMapObject){
+                    Gdx.app.debug(Constants.TAG,"Gameobject of type $obj is not supported")
+                    continue
+                }
+                val tiledMapTileObject : TiledMapTileMapObject=obj
+                val mapProperties:MapProperties = tiledMapTileObject.properties
+                val tiledProperties = tiledMapTileObject.tile.properties
+
+                val gameObjectType : GameObjectType= if (mapProperties.containsKey("type")){
+                    GameObjectType.valueOf(mapProperties.get("type",String::class.java))
+                }else if(tiledProperties.containsKey("type")){
+                    GameObjectType.valueOf(tiledProperties.get("type",String::class.java) )
+                }else{
+                    Gdx.app.debug(TAG,"There is no gameobject defines for tile ${mapProperties.get("id",Integer::class.java)}")
+                    continue
+                }
+                val animationIndex=obj.tile.id
+                if (!createAnimation(animationIndex,tiledMapTileObject.tile)){
+                    Gdx.app.debug(Constants.TAG,"Couldnt create animation for tile ${mapProperties.get("id",Integer::class.java)}")
+                    continue
+                }
+                val width=mapProperties.get("width",Float::class.java) * UNIT_SCALE
+                val height=mapProperties.get("height",Float::class.java) * UNIT_SCALE
+                gameObjects.add(GameObject(gameObjectType,
+                    Vector2(tiledMapTileObject.x* UNIT_SCALE,tiledMapTileObject.y* UNIT_SCALE),
+                    width,height,tiledMapTileObject.rotation,animationIndex
+                ))
+            }
+        }?:Gdx.app.debug(Constants.TAG,"There is no gameObjects layer !")
+    }
+
+    private fun createAnimation(animIndex:Int,tile:TiledMapTile):Boolean{
+        var animation : Animation<Sprite>? = mapAnimations.get(animIndex)
+        animation?.let {
+            Gdx.app.debug(Constants.TAG,"Creating new animations for ${tile.id}")
+            when (tile) {
+                is AnimatedTiledMapTile -> {
+                    val aniTile : AnimatedTiledMapTile = tile
+                    val keyFrames = com.badlogic.gdx.utils.Array<Sprite>()
+                    var i = 0
+                    for (staticTile in aniTile.frameTiles){
+                        keyFrames[i++]= Sprite(staticTile.textureRegion)
+                    }
+                    animation = Animation<Sprite>(aniTile.animationIntervals[0] * 0.001f,keyFrames)
+                    animation!!.playMode=Animation.PlayMode.LOOP
+                    mapAnimations.put(animIndex,animation)
+                }
+                is StaticTiledMapTile -> {
+                    animation=Animation<Sprite>(0f, Sprite(tile.textureRegion))
+                    mapAnimations.put(animIndex,animation)
+                }
+                else -> {
+                    Gdx.app.debug(Constants.TAG,"Tile of type $tile is not supported for map animations")
+                    return false
+                }
+            }
+        }
+        return true
     }
 
     private fun parseCollisionLayer(){

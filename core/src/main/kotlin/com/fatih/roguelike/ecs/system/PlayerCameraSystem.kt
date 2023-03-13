@@ -10,7 +10,7 @@ import com.fatih.roguelike.ecs.components.PlayerComponent
 
 class PlayerCameraSystem : IteratingSystem(Family.all(PlayerComponent::class.java,Box2dComponent::class.java).get()) {
     override fun processEntity(entity: Entity?, deltaTime: Float) {
-        RogueLikeGame.gameCamera.position.set(ECSEngine.box2dComponentMapper.get(entity).body?.position,0f)
+        RogueLikeGame.gameCamera.position.set(ECSEngine.box2dComponentMapper.get(entity).renderPosition,0f)
         RogueLikeGame.gameCamera.update()
     }
 }

@@ -9,6 +9,6 @@ class GameUI(private val skin: Skin,private val i18NBundle: I18NBundle):Table(sk
 
     init {
         setFillParent(true)
-        add(TextButton("Blub",skin,"huge"))
+        //add(TextButton("Blub",skin,"normal")).expandX().fillX().bottom().row()
     }
 }

@@ -14,7 +14,7 @@ import com.fatih.roguelike.input.InputManager
 import com.fatih.roguelike.screen.AbstractScreen
 import com.fatih.roguelike.util.Constants
 
-class PlayerMovementSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Box2dComponent::class.java).get()), InputListener {
+class PlayerMovementSystem : IteratingSystem(Family.all(PlayerComponent::class.java, Box2dComponent::class.java).get()), InputListener  {
 
     private var directionChange=false
     private var xFactor=0f
@@ -33,7 +33,6 @@ class PlayerMovementSystem : IteratingSystem(Family.all(PlayerComponent::class.j
         if (directionChange){
             val playerComponent =  ECSEngine.playerComponentMapper.get(entity)
             val box2dComponent = ECSEngine.box2dComponentMapper.get(entity)
-            directionChange=false
             val body=box2dComponent!!.body
             body!!.applyLinearImpulse(
                 (xFactor*playerComponent.speed.x - body.linearVelocity.x) * body.mass,
@@ -44,6 +43,7 @@ class PlayerMovementSystem : IteratingSystem(Family.all(PlayerComponent::class.j
             )
         }
     }
+
 
     override fun keyPressed(inputManager: InputManager, key: GameKeys) {
         when(key){
@@ -63,6 +63,7 @@ class PlayerMovementSystem : IteratingSystem(Family.all(PlayerComponent::class.j
                 directionChange=true
                 yFactor=1f
             }
+
             else->{}
         }
     }

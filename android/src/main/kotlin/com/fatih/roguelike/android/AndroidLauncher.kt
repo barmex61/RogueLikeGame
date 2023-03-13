@@ -13,7 +13,6 @@ class AndroidLauncher : AndroidApplication() {
         super.onCreate(savedInstanceState)
         initialize(RogueLikeGame(), AndroidApplicationConfiguration().apply {
             // Configure your application here.
-
             useImmersiveMode = true // Recommended, but not required.
         })
     }

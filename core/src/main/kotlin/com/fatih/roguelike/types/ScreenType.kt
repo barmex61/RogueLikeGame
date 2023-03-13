@@ -1,4 +1,4 @@
-package com.fatih.roguelike.screen
+package com.fatih.roguelike.types
 
 
 enum class ScreenType  () {

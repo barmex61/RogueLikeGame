@@ -9,6 +9,11 @@
    <frame tileid="4" duration="100"/>
   </animation>
  </tile>
+ <tile id="8">
+  <properties>
+   <property name="type" value="AXE"/>
+  </properties>
+ </tile>
  <tile id="15">
   <animation>
    <frame tileid="10" duration="100"/>
@@ -17,5 +22,10 @@
    <frame tileid="13" duration="100"/>
    <frame tileid="14" duration="100"/>
   </animation>
+ </tile>
+ <tile id="18">
+  <properties>
+   <property name="type" value="FIRESTONE"/>
+  </properties>
  </tile>
 </tileset>
