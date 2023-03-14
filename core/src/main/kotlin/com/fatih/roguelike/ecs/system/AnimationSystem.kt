@@ -10,8 +10,6 @@ class AnimationSystem : IteratingSystem(Family.all(AnimationComponent::class.jav
 
     override fun processEntity(entity: Entity?, deltaTime: Float) {
         val animComponent=ECSEngine.animationComponentMapper.get(entity)
-        animComponent.animType?.let {
-            animComponent.animTime +=deltaTime
-        }
+        animComponent.animTime +=deltaTime
     }
 }

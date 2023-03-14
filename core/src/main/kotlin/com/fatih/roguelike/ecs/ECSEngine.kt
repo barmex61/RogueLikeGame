@@ -2,6 +2,7 @@ package com.fatih.roguelike.ecs
 
 import com.badlogic.ashley.core.ComponentMapper
 import com.badlogic.ashley.core.PooledEngine
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
@@ -16,16 +17,15 @@ import com.fatih.roguelike.ecs.components.AnimationComponent
 import com.fatih.roguelike.ecs.components.Box2dComponent
 import com.fatih.roguelike.ecs.components.GameObjectComponent
 import com.fatih.roguelike.ecs.components.PlayerComponent
-import com.fatih.roguelike.ecs.system.AnimationSystem
-import com.fatih.roguelike.ecs.system.PlayerAnimationSystem
-import com.fatih.roguelike.ecs.system.PlayerCameraSystem
-import com.fatih.roguelike.ecs.system.PlayerMovementSystem
+import com.fatih.roguelike.ecs.system.*
 import com.fatih.roguelike.map.GameObject
 import com.fatih.roguelike.types.AnimationType
+import com.fatih.roguelike.util.Constants
 import com.fatih.roguelike.util.Constants.BIT_GAME_OBJECT
 import com.fatih.roguelike.util.Constants.BIT_GROUND
 import com.fatih.roguelike.util.Constants.BIT_PLAYER
 import com.fatih.roguelike.util.Constants.UNIT_SCALE
+import kotlin.experimental.or
 
 class ECSEngine:PooledEngine() {
 
@@ -47,6 +47,7 @@ class ECSEngine:PooledEngine() {
         addSystem(PlayerCameraSystem())
         addSystem(AnimationSystem())
         addSystem(PlayerAnimationSystem())
+        addSystem(PlayerCollisionSystem())
     }
 
     fun createPlayer(playerSpawnLocation:Vector2, width:Float, height:Float){
@@ -67,12 +68,12 @@ class ECSEngine:PooledEngine() {
         }
         fixtureDef.apply {
             filter.categoryBits=BIT_PLAYER
-            filter.maskBits= BIT_GROUND
+            filter.maskBits= BIT_GROUND or BIT_GAME_OBJECT
             this.shape=shape
         }
         val box2dComponent = createComponent(Box2dComponent::class.java).apply {
             body = RogueLikeGame.world.createBody(bodyDef)
-            body?.userData = "PLAYER"
+            body?.userData = player
             this.width=width
             this.height=height
             renderPosition.set(body!!.position)
@@ -90,7 +91,7 @@ class ECSEngine:PooledEngine() {
     }
 
     fun createGameObject(gameObject: GameObject) {
-        val gameObjEntity=this.createEntity()
+        val gameObjEntity=createEntity()
         createComponent(GameObjectComponent::class.java).apply {
             animationIndex=gameObject.animationIndex
             type=gameObject.type
@@ -110,8 +111,9 @@ class ECSEngine:PooledEngine() {
         RogueLikeGame.bodyDef.type=BodyDef.BodyType.StaticBody
         RogueLikeGame.bodyDef.position.set(gameObject.position.x + halfWidth,gameObject.position.y+halfHeight)
         box2dComponent.apply {
+
             body= world.createBody(RogueLikeGame.bodyDef)
-            body!!.userData="GAMEOBJECT"
+            body!!.userData=gameObjEntity
             width=gameObject.width
             height=gameObject.height
         }
@@ -133,8 +135,6 @@ class ECSEngine:PooledEngine() {
         }
         gameObjEntity.add(box2dComponent)
         this.addEntity(gameObjEntity)
-
-
 
     }
 }

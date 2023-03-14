@@ -33,7 +33,7 @@ class GameRenderer : Disposable, MapListener {
         RogueLikeGame.mapManager.mapListener=this
     }
 
-    private lateinit var mapAnimations: IntMap<Animation<Sprite>?>
+    private lateinit var mapAnimations: IntMap<Animation<Sprite>>
     private var orthogonalTiledMapRenderer= OrthogonalTiledMapRenderer(null, Constants.UNIT_SCALE,
         RogueLikeGame.spriteBatch
     )
@@ -61,7 +61,7 @@ class GameRenderer : Disposable, MapListener {
             renderEntity(entity,alpha)
         }
         RogueLikeGame.spriteBatch.end()
-        box2DDebugRenderer?.render(RogueLikeGame.world,RogueLikeGame.gameCamera.combined)
+        //box2DDebugRenderer?.render(RogueLikeGame.world,RogueLikeGame.gameCamera.combined)
     }
 
     private fun renderGameObjects(entity: Entity, alpha: Float) {
@@ -70,7 +70,7 @@ class GameRenderer : Disposable, MapListener {
         val gameObjectComponent=ECSEngine.gameObjectMapper.get(entity)
         if (gameObjectComponent.animationIndex != -1){
             val animation= mapAnimations[gameObjectComponent.animationIndex]
-            animation?.getKeyFrame(animationComponent.animTime)?.apply {
+            animation.getKeyFrame(animationComponent.animTime).apply {
                 setBounds(box2dComponent.renderPosition.x,box2dComponent.renderPosition.y,animationComponent.width,animationComponent.height)
                 setOriginCenter()
                 rotation=box2dComponent.body!!.angle * MathUtils.radDeg
@@ -82,7 +82,7 @@ class GameRenderer : Disposable, MapListener {
     private fun renderEntity(entity: Entity, alpha: Float) {
         val box2dComponent = ECSEngine.box2dComponentMapper.get(entity)
         ECSEngine.animationComponentMapper.get(entity).apply {
-            animType?.let {
+           animType?.let {
                 val animation: Animation<Sprite> = getAnimation(it)
                 val frame :Sprite = animation.getKeyFrame(this.animTime)
                 box2dComponent.renderPosition.lerp(box2dComponent.body!!.position,alpha)
@@ -121,7 +121,6 @@ class GameRenderer : Disposable, MapListener {
         orthogonalTiledMapRenderer.map=map.tiledMap
         map.tiledMap.layers.getByType(TiledMapTileLayer::class.java,tiledMapTileLayer)
         mapAnimations=map.mapAnimations
-
     }
 
     override fun dispose() {

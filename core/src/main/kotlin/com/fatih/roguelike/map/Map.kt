@@ -25,7 +25,8 @@ class Map ( val tiledMap: TiledMap) {
     val gameObjects = ArrayList<GameObject>()
     val startLocation=Vector2()
     val collisionArea:ArrayList<CollisionArea> = ArrayList()
-    val mapAnimations = IntMap<Animation<Sprite>?>()
+    val mapAnimations = IntMap<Animation<Sprite>>()
+
 
     init {
         parseCollisionLayer()
@@ -85,35 +86,40 @@ class Map ( val tiledMap: TiledMap) {
                     width,height,tiledMapTileObject.rotation,animationIndex
                 ))
             }
+
         }?:Gdx.app.debug(Constants.TAG,"There is no gameObjects layer !")
     }
 
     private fun createAnimation(animIndex:Int,tile:TiledMapTile):Boolean{
-        var animation : Animation<Sprite>? = mapAnimations.get(animIndex)
-        animation?.let {
-            Gdx.app.debug(Constants.TAG,"Creating new animations for ${tile.id}")
-            when (tile) {
-                is AnimatedTiledMapTile -> {
-                    val aniTile : AnimatedTiledMapTile = tile
-                    val keyFrames = com.badlogic.gdx.utils.Array<Sprite>()
-                    var i = 0
-                    for (staticTile in aniTile.frameTiles){
-                        keyFrames[i++]= Sprite(staticTile.textureRegion)
+        try {
+            var animation : Animation<Sprite>? = mapAnimations.get(animIndex)
+            if (animation == null) {
+                Gdx.app.debug(Constants.TAG,"Creating new animations for ${tile.id}")
+                when (tile) {
+                    is AnimatedTiledMapTile -> {
+                        val aniTile : AnimatedTiledMapTile = tile
+                        val keyFrames =com.badlogic.gdx.utils.Array<Sprite>()
+                        for (i in 0 until aniTile.frameTiles.size){
+                            keyFrames.add(Sprite(aniTile.frameTiles[i].textureRegion))
+                        }
+                        animation = Animation<Sprite>(aniTile.animationIntervals.first() * 0.001f,keyFrames)
+                        animation.playMode=Animation.PlayMode.LOOP
+                        mapAnimations.put(animIndex,animation)
                     }
-                    animation = Animation<Sprite>(aniTile.animationIntervals[0] * 0.001f,keyFrames)
-                    animation!!.playMode=Animation.PlayMode.LOOP
-                    mapAnimations.put(animIndex,animation)
-                }
-                is StaticTiledMapTile -> {
-                    animation=Animation<Sprite>(0f, Sprite(tile.textureRegion))
-                    mapAnimations.put(animIndex,animation)
-                }
-                else -> {
-                    Gdx.app.debug(Constants.TAG,"Tile of type $tile is not supported for map animations")
-                    return false
+                    is StaticTiledMapTile -> {
+                        animation=Animation<Sprite>(0f, Sprite(tile.textureRegion))
+                        mapAnimations.put(animIndex,animation)
+                    }
+                    else -> {
+                        Gdx.app.debug(Constants.TAG,"Tile of type $tile is not supported for map animations")
+                        return false
+                    }
                 }
             }
+        }catch (e:java.lang.Exception){
+            Gdx.app.debug(Constants.TAG,e.message)
         }
+
         return true
     }
 

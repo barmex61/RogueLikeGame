@@ -21,6 +21,9 @@
    <frame tileid="12" duration="100"/>
    <frame tileid="13" duration="100"/>
    <frame tileid="14" duration="100"/>
+   <frame tileid="15" duration="100"/>
+   <frame tileid="16" duration="100"/>
+   <frame tileid="17" duration="100"/>
   </animation>
  </tile>
  <tile id="18">

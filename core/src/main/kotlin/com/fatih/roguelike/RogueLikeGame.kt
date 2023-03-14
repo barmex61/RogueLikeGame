@@ -1,5 +1,6 @@
 package com.fatih.roguelike
 
+import box2dLight.RayHandler
 import com.badlogic.gdx.Application
 import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
@@ -38,12 +39,16 @@ import com.fatih.roguelike.util.Constants.setScreen
 import java.util.*
 import kotlin.math.min
 
-class RogueLikeGame : Game(),ContactListener by WorldContactListener(){
+class RogueLikeGame : Game(){
+
     private lateinit var screenCache: EnumMap<ScreenType, Screen>
     private var accumulator:Float=0f
     private var deltaTime=0f
 
+
     companion object{
+        lateinit var rayHandler: RayHandler
+        var worldContactListener=WorldContactListener()
         val inputManager=InputManager()
         lateinit var spriteBatch: SpriteBatch
         lateinit var screenViewPort: FitViewport
@@ -100,7 +105,7 @@ class RogueLikeGame : Game(),ContactListener by WorldContactListener(){
         stage= Stage(FitViewport(Gdx.graphics.width.toFloat(),Gdx.graphics.height.toFloat()), spriteBatch)
         Gdx.input.inputProcessor=InputMultiplexer(inputManager, stage)
         sizeLambda?.invoke(Gdx.graphics.width/3, (Gdx.graphics.height/1.3).toInt())
-        world.setContactListener(this)
+        world.setContactListener(worldContactListener)
         screenCache= EnumMap(ScreenType::class.java)
         setScreen(ScreenType.LOADING)
 

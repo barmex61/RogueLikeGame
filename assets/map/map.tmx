@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-up" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="21">
+<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-up" width="64" height="64" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="47">
  <tileset firstgid="1" source="tileset.tsx"/>
  <layer id="1" name="ground" width="64" height="64">
   <data encoding="base64" compression="zlib">
@@ -22,19 +22,40 @@
   <object id="1" gid="3" x="162.667" y="1852" width="32" height="32"/>
   <object id="2" gid="3" x="226.667" y="1596" width="32" height="32"/>
   <object id="3" gid="3" x="64" y="1568" width="32" height="32"/>
-  <object id="8" gid="16" x="115.25" y="1700.13" width="32" height="32" rotation="227.592">
-   <properties>
-    <property name="test" value="TEST"/>
-    <property name="type" value="CRYSTAL"/>
-   </properties>
-  </object>
-  <object id="10" gid="16" x="224.134" y="1713.94" width="32" height="32" rotation="325.266">
+  <object id="10" gid="16" x="198.755" y="1710.34" width="32" height="32" rotation="346.889">
    <properties>
     <property name="type" value="CRYSTAL"/>
    </properties>
   </object>
   <object id="15" x="152" y="1765">
    <point/>
+  </object>
+  <object id="21" gid="9" x="137" y="1641" width="32" height="32"/>
+  <object id="22" gid="9" x="239" y="1654" width="32" height="32"/>
+  <object id="37" gid="93" x="72" y="1872" width="32" height="32">
+   <properties>
+    <property name="type" value="TREE"/>
+   </properties>
+  </object>
+  <object id="43" gid="93" x="158" y="1974" width="32" height="32">
+   <properties>
+    <property name="type" value="TREE"/>
+   </properties>
+  </object>
+  <object id="44" gid="93" x="226" y="1909" width="32" height="32">
+   <properties>
+    <property name="type" value="TREE"/>
+   </properties>
+  </object>
+  <object id="45" gid="93" x="57" y="1953" width="32" height="32">
+   <properties>
+    <property name="type" value="TREE"/>
+   </properties>
+  </object>
+  <object id="46" gid="16" x="88" y="1713" width="32" height="32" rotation="346.889">
+   <properties>
+    <property name="type" value="CRYSTAL"/>
+   </properties>
   </object>
  </objectgroup>
 </map>
