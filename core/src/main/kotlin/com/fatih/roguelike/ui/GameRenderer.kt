@@ -20,6 +20,7 @@ import com.fatih.roguelike.ecs.ECSEngine
 import com.fatih.roguelike.ecs.components.AnimationComponent
 import com.fatih.roguelike.ecs.components.Box2dComponent
 import com.fatih.roguelike.ecs.components.GameObjectComponent
+import com.fatih.roguelike.ecs.components.ParticleEffectComponent
 import com.fatih.roguelike.map.GameObject
 import com.fatih.roguelike.map.Map
 import com.fatih.roguelike.map.MapListener
@@ -37,6 +38,7 @@ class GameRenderer : Disposable, MapListener {
     private var orthogonalTiledMapRenderer= OrthogonalTiledMapRenderer(null, Constants.UNIT_SCALE,
         RogueLikeGame.spriteBatch
     )
+    private val effectsToRender:ImmutableArray<Entity> = RogueLikeGame.ecsEngine.getEntitiesFor(Family.all(ParticleEffectComponent::class.java).get())
     private val animationCache=EnumMap<AnimationType,Animation<Sprite>>(EnumMap(AnimationType::class.java))
     private var box2DDebugRenderer : Box2DDebugRenderer?=Box2DDebugRenderer()
     private var gameObjectEntities:ImmutableArray<Entity> = RogueLikeGame.ecsEngine.getEntitiesFor(Family.all(GameObjectComponent::class.java,Box2dComponent::class.java,AnimationComponent::class.java).get())
@@ -60,6 +62,14 @@ class GameRenderer : Disposable, MapListener {
         for (entity in animatedEntities){
             renderEntity(entity,alpha)
         }
+        for (entity in effectsToRender){
+            ECSEngine.particleEffectComponentMapper.get(entity).apply {
+                this.particleEffect?.let {
+                    it.draw(RogueLikeGame.spriteBatch)
+                }
+            }
+        }
+        RogueLikeGame.spriteBatch.setBlendFunction(GL20.GL_SRC_ALPHA,GL20.GL_ONE_MINUS_SRC_ALPHA)
         RogueLikeGame.spriteBatch.end()
         RogueLikeGame.rayHandler.setCombinedMatrix(RogueLikeGame.gameCamera)
         RogueLikeGame.rayHandler.updateAndRender()

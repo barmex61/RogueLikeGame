@@ -1,10 +1,10 @@
 package com.fatih.roguelike.screen
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
-import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.g2d.ParticleEffect
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader
 import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.I18NBundle
@@ -14,6 +14,7 @@ import com.fatih.roguelike.input.GameKeys
 import com.fatih.roguelike.input.InputListener
 import com.fatih.roguelike.input.InputManager
 import com.fatih.roguelike.types.MapType
+import com.fatih.roguelike.types.ParticleEffectType
 import com.fatih.roguelike.types.ScreenType
 import com.fatih.roguelike.ui.LoadingUI
 import com.fatih.roguelike.util.Constants.setScreen
@@ -30,8 +31,13 @@ class LoadingScreen : AbstractScreen<LoadingUI>() ,InputListener{
         for (audioType in AudioType.values()){
             RogueLikeGame.assetManager.load(audioType.path,if (audioType.isMusic) Music::class.java else Sound::class.java)
         }
-
-
+        val parameter=com.badlogic.gdx.assets.loaders.ParticleEffectLoader.ParticleEffectParameter().apply {
+            atlasFile="characters_and_effects/character_and_effect.atlas"
+        }
+        for (type in ParticleEffectType.values()){
+            RogueLikeGame.assetManager.load(type.filePath,ParticleEffect::class.java,parameter)
+        }
+        RogueLikeGame.assetManager.finishLoading()
     }
 
     override fun hide() {

@@ -2,6 +2,7 @@ package com.fatih.roguelike.ecs
 
 import box2dLight.PointLight
 import com.badlogic.ashley.core.ComponentMapper
+import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.MathUtils
@@ -12,13 +13,11 @@ import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.fatih.roguelike.RogueLikeGame
 import com.fatih.roguelike.RogueLikeGame.Companion.resetBodyAndFixtureDefinition
 import com.fatih.roguelike.RogueLikeGame.Companion.world
-import com.fatih.roguelike.ecs.components.AnimationComponent
-import com.fatih.roguelike.ecs.components.Box2dComponent
-import com.fatih.roguelike.ecs.components.GameObjectComponent
-import com.fatih.roguelike.ecs.components.PlayerComponent
+import com.fatih.roguelike.ecs.components.*
 import com.fatih.roguelike.ecs.system.*
 import com.fatih.roguelike.map.GameObject
 import com.fatih.roguelike.types.AnimationType
+import com.fatih.roguelike.types.ParticleEffectType
 import com.fatih.roguelike.util.Constants
 import com.fatih.roguelike.util.Constants.BIT_GAME_OBJECT
 import com.fatih.roguelike.util.Constants.BIT_GROUND
@@ -38,6 +37,7 @@ class ECSEngine:PooledEngine() {
         val gameObjectMapper: ComponentMapper<GameObjectComponent> = ComponentMapper.getFor(GameObjectComponent::class.java)
         val playerComponentMapper: ComponentMapper<PlayerComponent> =ComponentMapper.getFor(PlayerComponent::class.java)
         val box2dComponentMapper: ComponentMapper<Box2dComponent> =ComponentMapper.getFor(Box2dComponent::class.java)
+        val particleEffectComponentMapper : ComponentMapper<ParticleEffectComponent> = ComponentMapper.getFor(ParticleEffectComponent::class.java)
         val animationComponentMapper : ComponentMapper<AnimationComponent> = ComponentMapper.getFor(AnimationComponent::class.java)
     }
 
@@ -48,9 +48,10 @@ class ECSEngine:PooledEngine() {
         addSystem(PlayerAnimationSystem())
         addSystem(LightSystem())
         addSystem(PlayerCollisionSystem())
+        addSystem(ParticleEffectSystem())
     }
 
-    fun createPlayer(playerSpawnLocation:Vector2, width:Float, height:Float){
+    fun createPlayer(playerSpawnLocation:Vector2, width:Float, height:Float):Entity{
         val playerComponent=createComponent(PlayerComponent::class.java).apply {
             speed.set(60f,60f)
         }
@@ -94,6 +95,7 @@ class ECSEngine:PooledEngine() {
         }
         player.add(animationComponent)
         addEntity(player)
+        return player
     }
 
     fun createGameObject(gameObject: GameObject) {
@@ -140,6 +142,13 @@ class ECSEngine:PooledEngine() {
             shape.dispose()
         }
         gameObjEntity.add(box2dComponent)
+        val particleComponent= createComponent(ParticleEffectComponent::class.java).apply {
+            effectType=ParticleEffectType.TORCH
+            this.
+            scaling=1500f
+            effectPosition.set(box2dComponent.body!!.position)
+        }
+        gameObjEntity.add(particleComponent)
         this.addEntity(gameObjEntity)
 
     }

@@ -67,6 +67,7 @@ class RogueLikeGame : Game(){
         val bodyDef= BodyDef()
         val mapManager=MapManager()
         lateinit var gameRenderer:GameRenderer
+        lateinit var  preferenceManager:PreferenceManager
         fun resetBodyAndFixtureDefinition(){
             bodyDef.apply {
                 position.set(0f,0f)
@@ -111,7 +112,7 @@ class RogueLikeGame : Game(){
         }
         screenCache= EnumMap(ScreenType::class.java)
         setScreen(ScreenType.LOADING)
-
+        preferenceManager=PreferenceManager()
         gameRenderer=GameRenderer()
     }
 
