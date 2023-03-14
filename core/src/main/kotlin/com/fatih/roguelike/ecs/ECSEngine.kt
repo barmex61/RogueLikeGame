@@ -1,16 +1,15 @@
 package com.fatih.roguelike.ecs
 
+import box2dLight.PointLight
 import com.badlogic.ashley.core.ComponentMapper
 import com.badlogic.ashley.core.PooledEngine
-import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.FixtureDef
 import com.badlogic.gdx.physics.box2d.PolygonShape
 import com.fatih.roguelike.RogueLikeGame
-import com.fatih.roguelike.RogueLikeGame.Companion.bodyDef
-import com.fatih.roguelike.RogueLikeGame.Companion.fixtureDef
 import com.fatih.roguelike.RogueLikeGame.Companion.resetBodyAndFixtureDefinition
 import com.fatih.roguelike.RogueLikeGame.Companion.world
 import com.fatih.roguelike.ecs.components.AnimationComponent
@@ -47,6 +46,7 @@ class ECSEngine:PooledEngine() {
         addSystem(PlayerCameraSystem())
         addSystem(AnimationSystem())
         addSystem(PlayerAnimationSystem())
+        addSystem(LightSystem())
         addSystem(PlayerCollisionSystem())
     }
 
@@ -72,13 +72,19 @@ class ECSEngine:PooledEngine() {
             this.shape=shape
         }
         val box2dComponent = createComponent(Box2dComponent::class.java).apply {
-            body = RogueLikeGame.world.createBody(bodyDef)
+            body =world.createBody(bodyDef)
             body?.userData = player
             this.width=width
             this.height=height
             renderPosition.set(body!!.position)
             body?.createFixture(fixtureDef)
             shape.dispose()
+            lightDistance=100f
+            lightFluctuationSpeed=1f
+            this.light=PointLight(RogueLikeGame.rayHandler,64, Color(1f,1f,1f,0.7f),lightDistance,this.body!!.position.x,this.body!!.position.y)
+            lightFluctuationDistance=light!!.distance*0.16f
+            this.light!!.attachToBody(this.body)
+
         }
         player.add(box2dComponent)
         val animationComponent=createComponent(AnimationComponent::class.java).apply {

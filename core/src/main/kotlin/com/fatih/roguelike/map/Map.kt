@@ -80,6 +80,7 @@ class Map ( val tiledMap: TiledMap) {
                     continue
                 }
                 val width=mapProperties.get("width",Float::class.java) * UNIT_SCALE
+                Gdx.app.debug(TAG,"width $width")
                 val height=mapProperties.get("height",Float::class.java) * UNIT_SCALE
                 gameObjects.add(GameObject(gameObjectType,
                     Vector2(tiledMapTileObject.x* UNIT_SCALE,tiledMapTileObject.y* UNIT_SCALE),

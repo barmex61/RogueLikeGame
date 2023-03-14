@@ -106,6 +106,9 @@ class RogueLikeGame : Game(){
         Gdx.input.inputProcessor=InputMultiplexer(inputManager, stage)
         sizeLambda?.invoke(Gdx.graphics.width/3, (Gdx.graphics.height/1.3).toInt())
         world.setContactListener(worldContactListener)
+        rayHandler= RayHandler(world).apply {
+            setAmbientLight(0f,0f,0f,0.2f)
+        }
         screenCache= EnumMap(ScreenType::class.java)
         setScreen(ScreenType.LOADING)
 
@@ -182,6 +185,8 @@ class RogueLikeGame : Game(){
         debugRenderer.dispose()
         assetManager.dispose()
         stage.dispose()
+        rayHandler.dispose()
+        spriteBatch.dispose()
     }
 
 }

@@ -61,6 +61,8 @@ class GameRenderer : Disposable, MapListener {
             renderEntity(entity,alpha)
         }
         RogueLikeGame.spriteBatch.end()
+        RogueLikeGame.rayHandler.setCombinedMatrix(RogueLikeGame.gameCamera)
+        RogueLikeGame.rayHandler.updateAndRender()
         //box2DDebugRenderer?.render(RogueLikeGame.world,RogueLikeGame.gameCamera.combined)
     }
 

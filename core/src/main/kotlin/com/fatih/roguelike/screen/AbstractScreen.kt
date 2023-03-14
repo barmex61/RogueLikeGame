@@ -24,6 +24,7 @@ abstract class AbstractScreen <T:Table>:Screen ,InputListener{
     override fun resize(width: Int, height: Int) {
         viewPort.update(width,height)
         stage.viewport.update(width,height,true)
+        RogueLikeGame.rayHandler.useCustomViewport(viewPort.screenX,viewPort.screenY,viewPort.screenWidth,viewPort.screenHeight)
     }
 
     protected abstract fun getScreenUI(skin: Skin , i18NBundle: I18NBundle = RogueLikeGame.i18NBundle):T
